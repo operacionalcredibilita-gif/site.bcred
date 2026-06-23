@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ranking de Metas</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --gold:#b8972a;
+  --green:#2a7a2a;
+  --bg:#111;
+  --card:#1a1a18;
+  --text:#ffd86a;
+  --border:rgba(255,215,106,0.3);
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);color:var(--text);padding:2rem 1rem;
+}
+.container{
+  max-width:760px;margin:auto;background:var(--card);
+  border-radius:16px;overflow:hidden;border:1px solid var(--border);
+}
+.header{
+  background:#111;padding:1.5rem;display:flex;
+  justify-content:space-between;align-items:center;
+}
+.logo-title{color:var(--gold);font-size:22px;font-weight:700;}
+.subtitle{color:#ffd86a;font-size:13px;margin-top:4px;}
+.tabs{display:flex;overflow:auto;background:#111;}
+.tab-btn{
+  background:none;border:none;color:#777;padding:14px 18px;
+  cursor:pointer;font-size:13px;font-weight:700;
+  border-bottom:2px solid transparent;white-space:nowrap;
+}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+.section{padding:1.5rem;}
+.meta-equipe{background:#222;border-radius:16px;padding:18px;color:#ffd86a;}
+.meta-title{color:var(--gold);font-size:13px;font-weight:700;}
+.meta-value{font-size:30px;font-weight:700;margin-top:8px;}
+.meta-sub{color:#bbb;margin-top:4px;font-size:13px;}
+.meta-percent{color:#ffd86a;margin-top:10px;font-weight:700;}
+.meta-bar{width:100%;height:10px;background:#333;border-radius:999px;overflow:hidden;margin-top:10px;}
+.meta-bar-fill{height:100%;background:linear-gradient(90deg,#b8972a,#ffd86a);}
+.section-label{font-size:12px;font-weight:700;margin-bottom:1rem;text-transform:uppercase;color:#777;}
+.input-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:1rem;}
+.inp-group label{font-size:11px;margin-bottom:4px;display:block;}
+.inp-group input{
+  width:100%;padding:8px;border-radius:8px;
+  border:1px solid #444;background:#222;color:#ffd86a;
+}
+.update-btn{
+  margin-top:1rem;background:var(--gold);color:#111;
+  border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:700;
+}
+.metrics-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.metric-card{background:#222;border-radius:12px;padding:1rem;}
+.metric-label{color:#bbb;font-size:12px;}
+.metric-value{margin-top:6px;color:var(--gold);font-size:22px;font-weight:700;}
+.ranking-list{display:flex;flex-direction:column;gap:10px;}
+.rank-item{
+  border:1px solid #444;border-radius:14px;padding:1rem;
+  position:relative;overflow:hidden;display:flex;
+  align-items:center;gap:12px;background:#1a1a18;
+}
+.rank-item.primeiro{border-color:var(--gold);}
+.rank-badge{
+  width:36px;height:36px;border-radius:50%;background:#333;
+  display:flex;align-items:center;justify-content:center;color:#ffd86a;
+  flex-shrink:0;
+}
+.rank-name{flex:1;font-weight:700;}
+.rank-values{text-align:right;}
+.rank-pct{font-size:12px;margin-top:3px;}
+.rank-pct.atingiu{color:var(--green);}
+.rank-pct.ouro{color:var(--gold);}
+.bar-wrap{position:absolute;left:0;bottom:0;width:100%;height:4px;background:#444;}
+.bar-fill{height:100%;}
+.bar-fill.verde{background:var(--green);}
+.bar-fill.ouro{background:var(--gold);}
+.paredao{
+  background:rgba(184,50,50,0.08);border:1px solid rgba(184,50,50,0.35);
+  border-radius:16px;padding:16px;
+}
+.paredao-title{
+  color:#e05555;font-size:13px;font-weight:700;margin-bottom:4px;
+}
+.rebaixado{
+  display:flex;justify-content:space-between;background:#222;
+  padding:10px;border-radius:10px;margin-top:8px;
+}
+.iphone-campanha{
+  margin:1.5rem;background:#111;color:#ffd86a;border-radius:16px;padding:18px;
+}
+.acumulado-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:1rem;
+}
+.acumulado-card{
+  background:rgba(255,255,255,0.05);padding:12px;border-radius:12px;text-align:center;
+}
+.acumulado-valor{color:#ffd86a;margin-top:5px;font-weight:700;font-size:13px;}
+.chart-wrap{height:260px;}
+.locked-badge{
+  display:inline-block;background:#333;color:#888;
+  font-size:11px;padding:3px 10px;border-radius:999px;margin-left:8px;vertical-align:middle;
+}
+@media(max-width:600px){
+  .input-row{grid-template-columns:repeat(2,1fr);}
+  .acumulado-grid{grid-template-columns:repeat(2,1fr);}
+}
+
+.festa-card{background:#111;border:1px solid rgba(255,215,106,.25);border-radius:16px;padding:16px;margin-top:15px}
+.festa-title{font-size:18px;font-weight:700;color:#ffd86a}
+.festa-items{color:#ccc;font-size:13px;line-height:1.8;margin-top:10px}
+
+/* ── Login ───────────────────────────────────────── */
+#login-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.92);
+  display:flex;align-items:center;justify-content:center;
+  z-index:9999;
+}
+.login-box{
+  background:#1a1a18;border:1px solid rgba(255,215,106,0.35);
+  border-radius:20px;padding:2rem 2rem 1.5rem;width:320px;max-width:90vw;
+  text-align:center;
+}
+.login-logo{font-size:36px;margin-bottom:8px;}
+.login-title{color:var(--gold);font-size:20px;font-weight:700;margin-bottom:4px;}
+.login-sub{color:#888;font-size:13px;margin-bottom:1.5rem;}
+.login-field{
+  width:100%;padding:10px 14px;margin-bottom:10px;
+  background:#111;border:1px solid #444;border-radius:10px;
+  color:#ffd86a;font-size:14px;outline:none;
+}
+.login-field:focus{border-color:var(--gold);}
+.login-btn{
+  width:100%;padding:11px;border:none;border-radius:10px;
+  background:var(--gold);color:#111;font-weight:700;font-size:15px;
+  cursor:pointer;margin-top:4px;
+}
+.login-btn:hover{opacity:0.9;}
+.login-guest{
+  margin-top:14px;color:#666;font-size:13px;cursor:pointer;
+  text-decoration:underline;
+}
+.login-guest:hover{color:#aaa;}
+.login-err{color:#e05555;font-size:13px;margin-top:8px;min-height:18px;}
+#visitor-badge{
+  position:fixed;top:10px;right:10px;z-index:999;
+  background:#222;border:1px solid #444;border-radius:20px;
+  padding:6px 14px;color:#888;font-size:12px;display:none;
+}
+#user-badge{
+  position:fixed;top:10px;right:10px;z-index:999;
+  background:rgba(184,151,42,0.15);border:1px solid rgba(184,151,42,0.4);border-radius:20px;
+  padding:6px 14px;color:var(--gold);font-size:12px;display:none;
+  cursor:pointer;
+}
+
+/* ── Rodízio de Leads ─────────────────────────────── */
+.tab-rodizio{
+  background:rgba(184,151,42,0.08);
+  border-left:1px solid rgba(255,215,106,0.15);
+}
+.tab-rodizio.active{
+  background:rgba(184,151,42,0.15);
+}
+
+/* Dashboard */
+.rod-dashboard{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:10px;
+  padding:1.2rem 1.5rem 0;
+}
+@media(max-width:700px){.rod-dashboard{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:400px){.rod-dashboard{grid-template-columns:1fr;}}
+
+.rod-card{
+  background:#222;border-radius:14px;padding:14px 10px;text-align:center;
+  border:1px solid #333;transition:transform .15s;
+}
+.rod-card:hover{transform:translateY(-2px);}
+.rod-card-icon{font-size:22px;margin-bottom:6px;}
+.rod-card-val{font-size:28px;font-weight:700;color:#ffd86a;line-height:1;}
+.rod-card-label{font-size:11px;color:#888;margin-top:5px;}
+.rod-verde {border-color:rgba(60,180,60,0.35);background:rgba(60,180,60,0.08);}
+.rod-verde .rod-card-val{color:#5ddd5d;}
+.rod-amarelo{border-color:rgba(220,190,0,0.35);background:rgba(220,190,0,0.08);}
+.rod-amarelo .rod-card-val{color:#ffd86a;}
+.rod-vermelho{border-color:rgba(220,60,60,0.35);background:rgba(220,60,60,0.08);}
+.rod-vermelho .rod-card-val{color:#e05555;}
+.rod-enviado{border-color:rgba(100,150,255,0.35);background:rgba(100,150,255,0.08);}
+.rod-enviado .rod-card-val{color:#7faeff;}
+
+/* Sections */
+.rod-section{padding:1.2rem 1.5rem;}
+.rod-form-title{
+  font-size:13px;font-weight:700;color:#bbb;text-transform:uppercase;
+  letter-spacing:.05em;margin-bottom:12px;
+}
+
+/* Form */
+.rod-form-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+}
+@media(max-width:600px){.rod-form-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:380px){.rod-form-grid{grid-template-columns:1fr;}}
+
+.rod-field label{
+  display:block;font-size:11px;color:#888;margin-bottom:4px;
+}
+.rod-field input,
+.rod-field select{
+  width:100%;padding:9px 10px;border-radius:9px;
+  border:1px solid #444;background:#1a1a18;color:#ffd86a;
+  font-size:13px;outline:none;transition:border-color .15s;
+}
+.rod-field input:focus,
+.rod-field select:focus{border-color:var(--gold);}
+.rod-field select option{background:#1a1a18;color:#ffd86a;}
+.rod-field-full{grid-column:1/-1;}
+
+.rod-btn-add{
+  margin-top:12px;background:var(--gold);color:#111;border:none;
+  padding:10px 22px;border-radius:9px;cursor:pointer;font-weight:700;
+  font-size:13px;transition:opacity .15s;
+}
+.rod-btn-add:hover{opacity:.88;}
+.rod-msg{
+  margin-top:8px;font-size:13px;color:#5ddd5d;min-height:18px;
+  animation:fadeIn .3s;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:none;}}
+
+/* Filtros */
+.rod-filtros-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+}
+@media(max-width:700px){.rod-filtros-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:400px){.rod-filtros-grid{grid-template-columns:1fr;}}
+
+/* Tabela */
+.rod-table-wrap{overflow-x:auto;border-radius:12px;border:1px solid #333;}
+.rod-table{width:100%;border-collapse:collapse;font-size:13px;}
+.rod-table thead tr{background:#1e1e1c;}
+.rod-table th{
+  padding:11px 12px;text-align:left;color:#888;font-size:11px;
+  text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #333;
+  white-space:nowrap;
+}
+.rod-table td{
+  padding:11px 12px;border-bottom:1px solid #2a2a28;color:#ddd;
+  vertical-align:middle;
+}
+.rod-table tbody tr:last-child td{border-bottom:none;}
+.rod-table tbody tr{transition:background .12s;}
+.rod-table tbody tr:hover{background:rgba(255,255,255,0.03);}
+.rod-empty{text-align:center;color:#555;font-style:italic;padding:2rem!important;}
+
+/* Status badges */
+.rod-status{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;
+  white-space:nowrap;
+}
+.rod-s-atend  {background:rgba(60,180,60,0.15);color:#5ddd5d;border:1px solid rgba(60,180,60,0.35);}
+.rod-s-apto   {background:rgba(220,190,0,0.15);color:#ffd86a;border:1px solid rgba(220,190,0,0.35);}
+.rod-s-atras  {background:rgba(220,60,60,0.15);color:#e05555;border:1px solid rgba(220,60,60,0.35);}
+.rod-s-enviado{background:rgba(100,150,255,0.15);color:#7faeff;border:1px solid rgba(100,150,255,0.35);}
+
+/* Row highlight when enviado */
+.rod-row-enviado td{opacity:.72;}
+
+/* Action buttons */
+.rod-btn-action{
+  background:none;border:1px solid #555;color:#aaa;padding:5px 9px;
+  border-radius:7px;cursor:pointer;font-size:12px;transition:all .15s;
+  margin-right:4px;white-space:nowrap;
+}
+.rod-btn-action:hover{border-color:#ffd86a;color:#ffd86a;}
+.rod-btn-enviar{border-color:rgba(100,150,255,0.5);color:#7faeff;}
+.rod-btn-enviar:hover{background:rgba(100,150,255,0.1);}
+.rod-btn-del{border-color:rgba(220,60,60,0.4);color:#e05555;}
+.rod-btn-del:hover{background:rgba(220,60,60,0.1);}
+.rod-dias-num{font-weight:700;font-size:15px;}
+
+</style>
+</head>
+<body>
+<!-- ── Tela de Login ─────────────────────────── -->
+<div id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">🏆</div>
+    <div class="login-title">Ranking de Metas</div>
+    <div class="login-sub">Entre com seu usuário e senha</div>
+    <input class="login-field" id="login-user" type="text" placeholder="Usuário" autocomplete="off">
+    <input class="login-field" id="login-pass" type="password" placeholder="Senha">
+    <button class="login-btn" onclick="tentarLogin()">Entrar</button>
+    <div class="login-err" id="login-err"></div>
+    <div class="login-guest" onclick="entrarVisitante()">👁️ Entrar como visitante (somente leitura)</div>
+  </div>
+</div>
+
+<!-- Badge usuário logado -->
+<div id="user-badge" onclick="logout()">👤 <span id="user-badge-nome"></span> &nbsp;· Sair</div>
+<!-- Badge visitante -->
+<div id="visitor-badge">👁️ Modo visitante</div>
+
+<div class="container">
+
+  <div class="header">
+    <div>
+      <div class="logo-title">🏆 Ranking de Metas</div>
+      <div class="subtitle" id="headerSubtitle">Junho • Meta: R$ 800,00</div>
+    </div>
+    <div style="font-size:28px;">🏆</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn" id="tab-abril"    onclick="switchTab('abril')">Abril</button>
+    <button class="tab-btn" id="tab-maio"     onclick="switchTab('maio')">Maio</button>
+    <button class="tab-btn active" id="tab-junho" onclick="switchTab('junho')">Junho</button>
+    <button class="tab-btn" id="tab-julho"    onclick="switchTab('julho')">Julho</button>
+    <button class="tab-btn" id="tab-agosto"   onclick="switchTab('agosto')">Agosto</button>
+    <button class="tab-btn" id="tab-setembro" onclick="switchTab('setembro')">Setembro</button>
+    <button class="tab-btn" id="tab-outubro"  onclick="switchTab('outubro')">Outubro</button>
+    <button class="tab-btn" id="tab-novembro" onclick="switchTab('novembro')">Novembro</button>
+    <button class="tab-btn" id="tab-dezembro" onclick="switchTab('dezembro')">Dezembro</button>
+    <button class="tab-btn tab-rodizio" id="tab-rodizio" onclick="switchTab('rodizio')">📋 Rodízio de Leads</button>
+  </div>
+
+  <div class="iphone-campanha" id="campanhaIphone"></div>
+<div class="iphone-campanha">
+<div style="font-size:18px;font-weight:700;color:#ffd86a;">🌽 Campanha Festa Junina</div>
+
+<div class="festa-card">
+<div class="festa-title">🌽 Festa FONC • Meta 180k</div>
+<div class="meta-bar"><div class="meta-bar-fill" style="width:35%"></div></div>
+<div class="festa-items">🍿 Pipoca • 🎂 Bolo • 🌭 Cachorro Quente • 🥜 Paçoca • 🍷 Quentão</div>
+</div>
+
+<div class="festa-card">
+<div class="festa-title">🎉 Festa TOP • Meta 240k</div>
+<div class="meta-bar"><div class="meta-bar-fill" style="width:26%"></div></div>
+<div class="festa-items">🍿 Pipoca • 🎂 Bolo • 🌭 Cachorro Quente • 🥜 Paçoca • 🍷 Quentão • 🌽 Canjica • 🌽 Milho • 🍎 Maçã do Amor</div>
+</div>
+
+<div class="festa-card">
+<div class="festa-title">👑 Festa Premium • Meta 300k</div>
+<div class="meta-bar"><div class="meta-bar-fill" style="width:21%"></div></div>
+<div class="festa-items">🍿 Pipoca • 🎂 Bolo • 🌭 Cachorro Quente • 🥜 Paçoca • 🍷 Quentão • 🌽 Canjica • 🌽 Milho • 🍎 Maçã do Amor • 🥣 Curau • 🍚 Arroz Doce • 🍬 Doces Típicos</div>
+</div>
+</div>
+
+
+  <!-- ===== ABRIL (FECHADO) ===== -->
+  <div class="tab-panel" id="panel-abril">
+    <div class="section">
+      <div class="meta-equipe">
+        <div class="meta-title">META DA EQUIPE — ABRIL <span class="locked-badge">🔒 Encerrado</span></div>
+        <div class="meta-value">R$ 2.274,38</div>
+        <div class="meta-sub">Objetivo da equipe: R$ 30.000 pagos</div>
+        <div class="meta-percent">7,58% concluído</div>
+        <div class="meta-bar"><div class="meta-bar-fill" style="width:7.58%"></div></div>
+      </div>
+      <div class="section-label" style="margin-top:1.5rem;">Ranking</div>
+      <div class="ranking-list">
+        <div class="rank-item primeiro">
+          <div class="rank-badge">🥇</div>
+          <div class="rank-name">Isabelly</div>
+          <div class="rank-values">
+            <div>R$ 1.325,25</div>
+            <div class="rank-pct atingiu">165% ✓ Meta atingida</div>
+          </div>
+          <div class="bar-wrap"><div class="bar-fill verde" style="width:100%"></div></div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-badge">🥈</div>
+          <div class="rank-name">Vitoria</div>
+          <div class="rank-values">
+            <div>R$ 490,00</div>
+            <div class="rank-pct ouro">61% da meta</div>
+          </div>
+          <div class="bar-wrap"><div class="bar-fill ouro" style="width:61%"></div></div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-badge">🥉</div>
+          <div class="rank-name">Iohanni</div>
+          <div class="rank-values">
+            <div>R$ 459,13</div>
+            <div class="rank-pct ouro">57% da meta</div>
+          </div>
+          <div class="bar-wrap"><div class="bar-fill ouro" style="width:57%"></div></div>
+        </div>
+      </div>
+      <div class="section" style="padding:1.5rem 0 0 0;">
+        <div class="section-label">Paredão ☠️</div>
+        <div class="paredao">
+          <div class="paredao-title">☠️ Menor desempenho do mês</div>
+          <div class="rebaixado"><span>Vitoria</span><strong>R$ 490,00</strong></div>
+          <div class="rebaixado"><span>Iohanni</span><strong>R$ 459,13</strong></div>
+        </div>
+      </div>
+      <div class="section" style="padding:1.5rem 0 0 0;">
+        <div class="section-label">Comparativo em gráfico</div>
+        <div class="chart-wrap"><canvas id="chart-abril"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MAIO (FECHADO) ===== -->
+  <div class="tab-panel" id="panel-maio">
+    <div class="section">
+      <div class="meta-equipe" id="meta-equipe-maio-box">
+        <div class="meta-title">META DA EQUIPE — MAIO <span class="locked-badge">🔒 Encerrado</span></div>
+        <div class="meta-value" id="metaValor-maio">—</div>
+        <div class="meta-sub">Objetivo da equipe: R$ 30.000 pagos</div>
+        <div class="meta-percent" id="metaPct-maio">—</div>
+        <div class="meta-bar"><div class="meta-bar-fill" id="metaBar-maio" style="width:0%"></div></div>
+      </div>
+      <div class="section-label" style="margin-top:1.5rem;">Ranking</div>
+      <div class="ranking-list" id="ranking-maio"></div>
+      <div class="section" style="padding:1.5rem 0 0 0;">
+        <div class="section-label">Paredão ☠️</div>
+        <div class="paredao" id="paredao-maio">
+          <div class="paredao-title">☠️ Menor desempenho do mês</div>
+        </div>
+      </div>
+      <div class="section" style="padding:1.5rem 0 0 0;">
+        <div class="section-label">Comparativo em gráfico</div>
+        <div class="chart-wrap"><canvas id="chart-maio"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== JUNHO (ATIVO) ===== -->
+  <div class="tab-panel active" id="panel-junho">
+    <div class="section">
+      <div class="meta-equipe">
+        <div class="meta-title">META DA EQUIPE — JUNHO</div>
+        <div class="meta-value" id="metaValor-junho">R$ 0,00</div>
+        <div class="meta-sub">Objetivo da equipe: R$ 30.000 pagos</div>
+        <div class="meta-percent" id="metaPct-junho">0% concluído</div>
+        <div class="meta-bar"><div class="meta-bar-fill" id="metaBar-junho" style="width:0%"></div></div>
+      </div>
+      <div class="section-label" style="margin-top:1.5rem;">Editar comissões</div>
+      <div class="input-row" id="inputs-junho"></div>
+      <button class="update-btn" onclick="atualizar('junho')">Atualizar ranking</button>
+    </div>
+    <div class="section">
+      <div class="section-label">Resumo do time</div>
+      <div class="metrics-row" id="metrics-junho"></div>
+    </div>
+    <div class="section">
+      <div class="section-label">Ranking</div>
+      <div class="ranking-list" id="ranking-junho"></div>
+    </div>
+    <div class="section">
+      <div class="section-label">Paredão ☠️</div>
+      <div class="paredao" style="
+margin-top:12px;
+background:rgba(120,120,120,.08);
+border:1px solid rgba(180,180,180,.25);
+">
+    
+    <div class="paredao-title" style="color:#c0c0c0;">
+        🚫 Hall dos Desclassificados
+    </div>
+
+    <div class="rebaixado">
+        <span>Geovanna</span>
+        <strong>Desclassificada</strong>
+    </div>
+
+</div>
+      <div class="paredao" id="paredao-junho">
+        <div class="paredao-title">☠️ Menor desempenho do mês</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Comparativo em gráfico</div>
+      <div class="chart-wrap"><canvas id="chart-junho"></canvas></div>
+    </div>
+  </div>
+
+  <!-- FUTUROS -->
+  <div class="tab-panel" id="panel-julho"><div class="section"><div class="section-label">Julho ainda não iniciado.</div></div></div>
+  <div class="tab-panel" id="panel-agosto"><div class="section"><div class="section-label">Agosto ainda não iniciado.</div></div></div>
+  <div class="tab-panel" id="panel-setembro"><div class="section"><div class="section-label">Setembro ainda não iniciado.</div></div></div>
+  <div class="tab-panel" id="panel-outubro"><div class="section"><div class="section-label">Outubro ainda não iniciado.</div></div></div>
+  <div class="tab-panel" id="panel-novembro"><div class="section"><div class="section-label">Novembro ainda não iniciado.</div></div></div>
+  <div class="tab-panel" id="panel-dezembro"><div class="section"><div class="section-label">Dezembro ainda não iniciado.</div></div></div>
+
+  <!-- ===== RODÍZIO DE LEADS ===== -->
+  <div class="tab-panel" id="panel-rodizio">
+
+    <!-- Dashboard Cards -->
+    <div class="rod-dashboard">
+      <div class="rod-card">
+        <div class="rod-card-icon">📊</div>
+        <div class="rod-card-val" id="rod-total">0</div>
+        <div class="rod-card-label">Total de Leads</div>
+      </div>
+      <div class="rod-card rod-verde">
+        <div class="rod-card-icon">🟢</div>
+        <div class="rod-card-val" id="rod-atend">0</div>
+        <div class="rod-card-label">Em Atendimento</div>
+      </div>
+      <div class="rod-card rod-amarelo">
+        <div class="rod-card-icon">🟡</div>
+        <div class="rod-card-val" id="rod-apto">0</div>
+        <div class="rod-card-label">Aptos p/ Rodízio</div>
+      </div>
+      <div class="rod-card rod-vermelho">
+        <div class="rod-card-icon">🔴</div>
+        <div class="rod-card-val" id="rod-atras">0</div>
+        <div class="rod-card-label">Atrasados</div>
+      </div>
+      <div class="rod-card rod-enviado">
+        <div class="rod-card-icon">🔄</div>
+        <div class="rod-card-val" id="rod-env">0</div>
+        <div class="rod-card-label">Enviados p/ Rodízio</div>
+      </div>
+    </div>
+
+    <!-- Formulário de Cadastro -->
+    <div class="rod-section">
+      <div class="rod-form-title">➕ Cadastrar Novo Lead</div>
+      <div class="rod-form-grid">
+        <div class="rod-field">
+          <label>Nome do Cliente</label>
+          <input type="text" id="rod-inp-nome" placeholder="Ex: João Silva" autocomplete="off">
+        </div>
+        <div class="rod-field">
+          <label>Telefone</label>
+          <input type="text" id="rod-inp-fone" placeholder="(99) 99999-9999" autocomplete="off">
+        </div>
+        <div class="rod-field">
+          <label>Vendedora Responsável</label>
+          <select id="rod-inp-vend">
+            <option value="">Selecione...</option>
+            <option>Ana</option>
+            <option>Isabelly</option>
+            <option>Vitoria</option>
+            <option>Iohanni</option>
+            <option>Keth</option>
+          </select>
+        </div>
+        <div class="rod-field rod-field-full">
+          <label>Observações</label>
+          <input type="text" id="rod-inp-obs" placeholder="Anotações sobre o cliente..." autocomplete="off">
+        </div>
+      </div>
+      <button class="rod-btn-add" onclick="rodAdicionarLead()">➕ Cadastrar Lead</button>
+      <div class="rod-msg" id="rod-msg"></div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="rod-section">
+      <div class="rod-form-title">🔍 Filtros</div>
+      <div class="rod-filtros-grid">
+        <div class="rod-field">
+          <label>Vendedora</label>
+          <select id="rod-fil-vend" onchange="rodRenderTabela()">
+            <option value="">Todas</option>
+            <option>Ana</option>
+            <option>Isabelly</option>
+            <option>Vitoria</option>
+            <option>Iohanni</option>
+            <option>Keth</option>
+          </select>
+        </div>
+        <div class="rod-field">
+          <label>Status</label>
+          <select id="rod-fil-status" onchange="rodRenderTabela()">
+            <option value="">Todos</option>
+            <option value="atend">🟢 Em Atendimento</option>
+            <option value="apto">🟡 Pode ir para Rodízio</option>
+            <option value="atras">🔴 Atrasado</option>
+            <option value="enviado">🔄 Enviado para Rodízio</option>
+          </select>
+        </div>
+        <div class="rod-field">
+          <label>Nome</label>
+          <input type="text" id="rod-fil-nome" placeholder="Buscar por nome..." oninput="rodRenderTabela()">
+        </div>
+        <div class="rod-field">
+          <label>Telefone</label>
+          <input type="text" id="rod-fil-fone" placeholder="Buscar por telefone..." oninput="rodRenderTabela()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabela de Leads -->
+    <div class="rod-section">
+      <div class="rod-form-title">📋 Leads Cadastrados</div>
+      <div class="rod-table-wrap">
+        <table class="rod-table" id="rod-table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Telefone</th>
+              <th>Vendedora</th>
+              <th>Data Entrada</th>
+              <th>Dias</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="rod-tbody">
+            <tr><td colspan="7" class="rod-empty">Nenhum lead cadastrado ainda.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /panel-rodizio -->
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const META        = 800;
+const META_EQUIPE = 30000;
+const META_IPHONE = 30000000;
+
+/* ── Dados fixos ──────────────────────────────────── */
+const dadosAbril = [
+  {nome:'Isabelly', comissao:1325.25},
+  {nome:'Vitoria',  comissao:490.00},
+  {nome:'Iohanni',  comissao:459.13}
+];
+
+const defaultMaio = [
+  {nome:'Ana', comissao:0},
+  {nome:'Isabelly', comissao:1028.77},
+  {nome:'Vitoria',  comissao:191.20},
+  {nome:'Iohanni',  comissao:15.36},
+  {nome:'Keth',     comissao:295.83}
+];
+
+const defaultJunho = [
+  {nome:'Ana', comissao:0},
+  {nome:'Isabelly', comissao:402.05},
+  {nome:'Vitoria',  comissao:165.65},
+  {nome:'Iohanni',  comissao:97.98},
+  {nome:'Keth',     comissao:397.24}
+];
+
+/* ── localStorage helpers ─────────────────────────── */
+function carregar(mes, def){
+  try{
+    const s = localStorage.getItem('ranking_'+mes);
+    if(s) return JSON.parse(s);
+  }catch(e){}
+  return def.map(v=>({...v}));
+}
+function salvar(mes, dados){
+  localStorage.setItem('ranking_'+mes, JSON.stringify(dados));
+}
+
+/* ── Estado em memória ────────────────────────────── */
+const dados = {
+  maio:  carregar('maio',  defaultMaio),
+  junho: carregar('junho', defaultJunho)
+};
+
+const charts = {};
+
+/* ── Tabs ─────────────────────────────────────────── */
+const tabNomes = {
+  abril:'Abril',maio:'Maio',junho:'Junho',julho:'Julho',agosto:'Agosto',
+  setembro:'Setembro',outubro:'Outubro',novembro:'Novembro',dezembro:'Dezembro'
+};
+function switchTab(tab){
+  Object.keys(tabNomes).forEach(t=>{
+    const p = document.getElementById('panel-'+t);
+    const b = document.getElementById('tab-'+t);
+    if(p) p.classList.toggle('active', t===tab);
+    if(b) b.classList.toggle('active', t===tab);
+  });
+  document.getElementById('headerSubtitle').textContent =
+    tabNomes[tab]+' • Meta: R$ 800,00';
+}
+
+/* ── Atualizar (junho) ────────────────────────────── */
+function atualizar(mes){
+  dados[mes].forEach((v,i)=>{
+    const el = document.getElementById('inp-'+mes+'-'+i);
+    if(el) v.comissao = parseFloat(el.value)||0;
+  });
+  salvar(mes, dados[mes]);
+  renderMes(mes);
+  renderCampanhaIphone();
+}
+
+/* ── Render mês ativo (junho) ─────────────────────── */
+function buildInputs(mes){
+  const el = document.getElementById('inputs-'+mes);
+  if(!el) return;
+  el.innerHTML = dados[mes].map((v,i)=>`
+    <div class="inp-group">
+      <label>${v.nome}</label>
+      <input type="number" id="inp-${mes}-${i}" value="${v.comissao}" min="0" step="0.01">
+    </div>`).join('');
+}
+
+function renderMes(mes){
+  const lista   = dados[mes];
+  const sorted  = [...lista].sort((a,b)=>b.comissao-a.comissao);
+  const total   = lista.reduce((s,v)=>s+v.comissao,0);
+  const pctEq   = (total/META_EQUIPE)*100;
+  const bateram = lista.filter(v=>v.comissao>=META).length;
+  const emojis  = ['🥇','🥈','🥉'];
+
+  // meta equipe
+  set('metaValor-'+mes, 'R$ '+fmt(total));
+  set('metaPct-'+mes,   pctEq.toFixed(2)+'% concluído');
+  style('metaBar-'+mes, 'width', Math.min(pctEq,100)+'%');
+
+  // métricas (só junho tem este bloco)
+  const mEl = document.getElementById('metrics-'+mes);
+  if(mEl) mEl.innerHTML = `
+    <div class="metric-card">
+      <div class="metric-label">Total do time</div>
+      <div class="metric-value">R$ ${fmt(total)}</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Bateram a meta</div>
+      <div class="metric-value">${bateram}/${lista.length}</div>
+    </div>`;
+
+  // ranking
+  set('ranking-'+mes, sorted.map((v,i)=>{
+    const pct    = Math.round((v.comissao/META)*100);
+    const atingiu= pct>=100;
+    const badge  = i<3 ? emojis[i] : (i+1)+'º';
+    return `
+    <div class="rank-item ${i===0?'primeiro':''}">
+      <div class="rank-badge">${badge}</div>
+      <div class="rank-name">${v.nome}</div>
+      <div class="rank-values">
+        <div>R$ ${fmt(v.comissao)}</div>
+        <div class="rank-pct ${atingiu?'atingiu':pct>=80?'ouro':''}">
+          ${pct}% ${atingiu?'✓ Meta atingida':'da meta'}
+        </div>
+      </div>
+      <div class="bar-wrap">
+        <div class="bar-fill ${atingiu?'verde':'ouro'}" style="width:${Math.min(pct,100)}%"></div>
+      </div>
+    </div>`;
+  }).join(''));
+
+  // paredão
+  const sortAsc = [...lista].sort((a,b)=>a.comissao-b.comissao);
+  const pEl = document.getElementById('paredao-'+mes);
+  if(pEl) pEl.innerHTML =
+    '<div class="paredao-title">☠️ Menor desempenho do mês</div>'+
+    sortAsc.slice(0,2).map(v=>`
+      <div class="rebaixado">
+        <span>${v.nome}</span>
+        <strong>R$ ${fmt(v.comissao)}</strong>
+      </div>`).join('');
+
+  // gráfico
+  renderChart(mes, sorted);
+}
+
+/* ── Gráfico genérico ─────────────────────────────── */
+function renderChart(mes, sorted){
+  const ctx = document.getElementById('chart-'+mes);
+  if(!ctx) return;
+  if(charts[mes]) charts[mes].destroy();
+  charts[mes] = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels: sorted.map(v=>v.nome),
+      datasets:[{
+        label:'Comissão (R$)',
+        data: sorted.map(v=>v.comissao),
+        backgroundColor:'rgba(184,151,42,0.6)',
+        borderColor:'#ffd86a',
+        borderWidth:1
+      },{
+        type:'line',
+        label:'Meta (R$ '+fmt(META)+')',
+        data: sorted.map(()=>META),
+        borderColor:'#e05555',
+        borderWidth:2,
+        borderDash:[6,4],
+        pointRadius:0,
+        fill:false
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{labels:{color:'#ffd86a'}},
+        tooltip:{callbacks:{label:ctx=>'R$ '+fmt(ctx.parsed.y)}}
+      },
+      scales:{
+        x:{ticks:{color:'#ffd86a'},grid:{color:'rgba(255,255,255,0.05)'}},
+        y:{ticks:{color:'#ffd86a',callback:v=>'R$ '+fmt(v)},grid:{color:'rgba(255,255,255,0.05)'}}
+      }
+    }
+  });
+}
+
+/* ── Gráfico Abril (estático) ─────────────────────── */
+function renderChartAbril(){
+  const sorted = [...dadosAbril].sort((a,b)=>b.comissao-a.comissao);
+  renderChartStatic('abril', sorted);
+}
+function renderChartStatic(mes, sorted){
+  const ctx = document.getElementById('chart-'+mes);
+  if(!ctx) return;
+  if(charts[mes]) charts[mes].destroy();
+  charts[mes] = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels: sorted.map(v=>v.nome),
+      datasets:[{
+        label:'Comissão (R$)',
+        data: sorted.map(v=>v.comissao),
+        backgroundColor:'rgba(184,151,42,0.6)',
+        borderColor:'#ffd86a',
+        borderWidth:1
+      },{
+        type:'line',
+        label:'Meta (R$ '+fmt(META)+')',
+        data: sorted.map(()=>META),
+        borderColor:'#e05555',
+        borderWidth:2,
+        borderDash:[6,4],
+        pointRadius:0,
+        fill:false
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{labels:{color:'#ffd86a'}},
+        tooltip:{callbacks:{label:ctx=>'R$ '+fmt(ctx.parsed.y)}}
+      },
+      scales:{
+        x:{ticks:{color:'#ffd86a'},grid:{color:'rgba(255,255,255,0.05)'}},
+        y:{ticks:{color:'#ffd86a',callback:v=>'R$ '+fmt(v)},grid:{color:'rgba(255,255,255,0.05)'}}
+      }
+    }
+  });
+}
+
+/* ── Campanha iPhone ──────────────────────────────── */
+function renderCampanhaIphone(){
+  const tAbril  = dadosAbril.reduce((s,v)=>s+v.comissao,0);
+  const tMaio   = dados.maio.reduce((s,v)=>s+v.comissao,0);
+  const tJunho  = dados.junho.reduce((s,v)=>s+v.comissao,0);
+  const total   = tAbril+tMaio+tJunho;
+  const faltam  = META_IPHONE-total;
+  const pct     = (total/META_IPHONE)*100;
+
+  document.getElementById('campanhaIphone').innerHTML = `
+    <div style="font-size:18px;font-weight:700;color:#ffd86a;">📱 Campanha iPhone</div>
+    <div style="margin-top:8px;color:#bbb;">Acumulado geral da campanha</div>
+    <div class="acumulado-grid">
+      <div class="acumulado-card"><div>Abril</div><div class="acumulado-valor">R$ ${fmt(tAbril)}</div></div>
+      <div class="acumulado-card"><div>Maio</div><div class="acumulado-valor">R$ ${fmt(tMaio)}</div></div>
+      <div class="acumulado-card"><div>Junho</div><div class="acumulado-valor">R$ ${fmt(tJunho)}</div></div>
+      <div class="acumulado-card"><div><strong>Total</strong></div><div class="acumulado-valor">R$ ${fmt(total)}</div></div>
+    </div>
+    <div style="margin-top:16px;">
+      <strong>${pct.toFixed(4)}%</strong> concluído da campanha
+    </div>
+    <div class="meta-bar">
+      <div class="meta-bar-fill" style="width:${Math.min(pct,100)}%"></div>
+    </div>
+    <div style="margin-top:10px;color:#bbb;">
+      Faltam <strong>R$ ${fmt(faltam)}</strong> para o prêmio.
+    </div>`;
+}
+
+/* ── Render Maio (somente leitura) ────────────────── */
+function renderMaioReadonly(){
+  const lista  = dados.maio;
+  const sorted = [...lista].sort((a,b)=>b.comissao-a.comissao);
+  const total  = lista.reduce((s,v)=>s+v.comissao,0);
+  const pctEq  = (total/META_EQUIPE)*100;
+  const emojis = ['🥇','🥈','🥉'];
+
+  set('metaValor-maio', 'R$ '+fmt(total));
+  set('metaPct-maio',   pctEq.toFixed(2)+'% concluído');
+  style('metaBar-maio','width', Math.min(pctEq,100)+'%');
+
+  set('ranking-maio', sorted.map((v,i)=>{
+    const pct    = Math.round((v.comissao/META)*100);
+    const atingiu= pct>=100;
+    const badge  = i<3 ? emojis[i] : (i+1)+'º';
+    return `
+    <div class="rank-item ${i===0?'primeiro':''}">
+      <div class="rank-badge">${badge}</div>
+      <div class="rank-name">${v.nome}</div>
+      <div class="rank-values">
+        <div>R$ ${fmt(v.comissao)}</div>
+        <div class="rank-pct ${atingiu?'atingiu':pct>=80?'ouro':''}">
+          ${pct}% ${atingiu?'✓ Meta atingida':'da meta'}
+        </div>
+      </div>
+      <div class="bar-wrap">
+        <div class="bar-fill ${atingiu?'verde':'ouro'}" style="width:${Math.min(pct,100)}%"></div>
+      </div>
+    </div>`;
+  }).join(''));
+
+  const sortAsc = [...lista].sort((a,b)=>a.comissao-b.comissao);
+  const pEl = document.getElementById('paredao-maio');
+  if(pEl) pEl.innerHTML =
+    '<div class="paredao-title">☠️ Menor desempenho do mês</div>'+
+    sortAsc.slice(0,2).map(v=>`
+      <div class="rebaixado"><span>${v.nome}</span><strong>R$ ${fmt(v.comissao)}</strong></div>`).join('');
+
+  renderChartStatic('maio', sorted);
+}
+
+/* ── Helpers DOM ──────────────────────────────────── */
+function set(id,html){ const e=document.getElementById(id); if(e) e.innerHTML=html; }
+function style(id,prop,val){ const e=document.getElementById(id); if(e) e.style[prop]=val; }
+function fmt(v){
+  return Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+/* ── Login ────────────────────────────────────────── */
+const USUARIOS = {
+  'pamela1':   '1010',
+  'stephanie': '1013',
+  'marina':    '1014'
+};
+
+let modoVisitante = false;
+
+function tentarLogin(){
+  const user = document.getElementById('login-user').value.trim().toLowerCase();
+  const pass = document.getElementById('login-pass').value.trim();
+  const err  = document.getElementById('login-err');
+
+  if(USUARIOS[user] && USUARIOS[user] === pass){
+    document.getElementById('login-overlay').style.display = 'none';
+    const badge = document.getElementById('user-badge');
+    document.getElementById('user-badge-nome').textContent = user;
+    badge.style.display = 'block';
+    modoVisitante = false;
+  } else {
+    err.textContent = '❌ Usuário ou senha incorretos.';
+    document.getElementById('login-pass').value = '';
+  }
+}
+
+function entrarVisitante(){
+  document.getElementById('login-overlay').style.display = 'none';
+  document.getElementById('visitor-badge').style.display = 'block';
+  modoVisitante = true;
+  bloquearEdicao();
+}
+
+function bloquearEdicao(){
+  document.querySelectorAll('.inp-group input').forEach(el=>{
+    el.disabled = true;
+    el.style.opacity = '0.5';
+    el.style.cursor  = 'not-allowed';
+  });
+  document.querySelectorAll('.update-btn').forEach(el=>{
+    el.disabled = true;
+    el.style.opacity = '0.4';
+    el.style.cursor  = 'not-allowed';
+    el.title = 'Acesso restrito — faça login para editar';
+  });
+}
+
+function logout(){
+  document.getElementById('user-badge').style.display = 'none';
+  document.getElementById('visitor-badge').style.display = 'none';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-err').textContent = '';
+  document.getElementById('login-overlay').style.display = 'flex';
+  modoVisitante = false;
+}
+
+document.addEventListener('keydown', e=>{
+  if(e.key==='Enter' && document.getElementById('login-overlay').style.display !== 'none'){
+    tentarLogin();
+  }
+});
+
+/* ── Init ─────────────────────────────────────────── */
+renderChartAbril();
+renderMaioReadonly();
+buildInputs('junho');
+renderMes('junho');
+renderCampanhaIphone();
+
+/* ══════════════════════════════════════════════════
+   RODÍZIO DE LEADS
+══════════════════════════════════════════════════ */
+
+/* ── Patch switchTab to support 'rodizio' ── */
+(function(){
+  const _orig = switchTab;
+  window.switchTab = function(tab){
+    // Handle rodizio tab separately
+    const allTabs = ['abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro','rodizio'];
+    allTabs.forEach(t=>{
+      const p = document.getElementById('panel-'+t);
+      const b = document.getElementById('tab-'+t);
+      if(p) p.classList.toggle('active', t===tab);
+      if(b) b.classList.toggle('active', t===tab);
+    });
+    if(tab==='rodizio'){
+      document.getElementById('headerSubtitle').textContent = 'Rodízio de Leads • Controle de Atendimento';
+      rodRenderTabela();
+    } else {
+      _orig(tab);
+    }
+  };
+})();
+
+/* ── Storage helpers ── */
+function rodCarregar(){
+  try{
+    const s = localStorage.getItem('rodizio_leads');
+    if(s) return JSON.parse(s);
+  }catch(e){}
+  return [];
+}
+function rodSalvar(leads){
+  localStorage.setItem('rodizio_leads', JSON.stringify(leads));
+}
+
+/* ── Status calc ── */
+function rodStatusDados(lead){
+  if(lead.enviado){
+    return {key:'enviado', label:'🔄 Enviado para Rodízio', cls:'rod-s-enviado'};
+  }
+  const dias = rodDias(lead.dataEntrada);
+  if(dias <= 4) return {key:'atend',  label:'🟢 Em Atendimento',      cls:'rod-s-atend'};
+  if(dias <= 7) return {key:'apto',   label:'🟡 Pode ir para Rodízio', cls:'rod-s-apto'};
+  return            {key:'atras',  label:'🔴 Atrasado',              cls:'rod-s-atras'};
+}
+
+function rodDias(dataEntrada){
+  const hoje   = new Date();
+  const entrada= new Date(dataEntrada);
+  const diff   = hoje - entrada;
+  return Math.floor(diff / (1000*60*60*24));
+}
+
+function rodFmtData(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString('pt-BR');
+}
+
+/* ── Adicionar lead ── */
+function rodAdicionarLead(){
+  const nome  = document.getElementById('rod-inp-nome').value.trim();
+  const fone  = document.getElementById('rod-inp-fone').value.trim();
+  const vend  = document.getElementById('rod-inp-vend').value;
+  const obs   = document.getElementById('rod-inp-obs').value.trim();
+  const msg   = document.getElementById('rod-msg');
+
+  if(!nome || !fone || !vend){
+    msg.style.color='#e05555';
+    msg.textContent='⚠️ Preencha Nome, Telefone e Vendedora.';
+    setTimeout(()=>msg.textContent='',3000);
+    return;
+  }
+
+  const leads = rodCarregar();
+  leads.unshift({
+    id: Date.now(),
+    nome, fone, vend, obs,
+    dataEntrada: new Date().toISOString(),
+    enviado: false,
+    dataEnvio: null
+  });
+  rodSalvar(leads);
+
+  document.getElementById('rod-inp-nome').value='';
+  document.getElementById('rod-inp-fone').value='';
+  document.getElementById('rod-inp-vend').value='';
+  document.getElementById('rod-inp-obs').value='';
+
+  msg.style.color='#5ddd5d';
+  msg.textContent='✅ Lead cadastrado com sucesso!';
+  setTimeout(()=>msg.textContent='',3000);
+
+  rodRenderTabela();
+}
+
+/* ── Enviar para Rodízio ── */
+function rodEnviar(id){
+  const leads = rodCarregar();
+  const lead  = leads.find(l=>l.id===id);
+  if(!lead) return;
+  if(!confirm(`Enviar "${lead.nome}" para o Rodízio?`)) return;
+  lead.enviado  = true;
+  lead.dataEnvio= new Date().toISOString();
+  rodSalvar(leads);
+  rodRenderTabela();
+}
+
+/* ── Desfazer envio ── */
+function rodDesfazer(id){
+  const leads = rodCarregar();
+  const lead  = leads.find(l=>l.id===id);
+  if(!lead) return;
+  lead.enviado  = false;
+  lead.dataEnvio= null;
+  rodSalvar(leads);
+  rodRenderTabela();
+}
+
+/* ── Excluir lead ── */
+function rodExcluir(id){
+  const leads = rodCarregar();
+  const lead  = leads.find(l=>l.id===id);
+  if(!lead) return;
+  if(!confirm(`Excluir o lead "${lead.nome}"? Esta ação não pode ser desfeita.`)) return;
+  const novo = leads.filter(l=>l.id!==id);
+  rodSalvar(novo);
+  rodRenderTabela();
+}
+
+/* ── Render tabela e dashboard ── */
+function rodRenderTabela(){
+  const todos  = rodCarregar();
+  const filVend  = document.getElementById('rod-fil-vend')?.value   || '';
+  const filStatus= document.getElementById('rod-fil-status')?.value || '';
+  const filNome  = (document.getElementById('rod-fil-nome')?.value  || '').toLowerCase();
+  const filFone  = (document.getElementById('rod-fil-fone')?.value  || '').toLowerCase();
+
+  // Dashboard counts
+  let cTotal=0,cAtend=0,cApto=0,cAtras=0,cEnv=0;
+  todos.forEach(l=>{
+    cTotal++;
+    const s = rodStatusDados(l).key;
+    if(s==='atend')   cAtend++;
+    else if(s==='apto')   cApto++;
+    else if(s==='atras')  cAtras++;
+    else if(s==='enviado')cEnv++;
+  });
+  const sv=v=>{ const e=document.getElementById(v); if(e) e.textContent=eval('c'+v.split('-')[1].charAt(0).toUpperCase()+v.split('-')[1].slice(1)); };
+  document.getElementById('rod-total').textContent = cTotal;
+  document.getElementById('rod-atend').textContent = cAtend;
+  document.getElementById('rod-apto').textContent  = cApto;
+  document.getElementById('rod-atras').textContent = cAtras;
+  document.getElementById('rod-env').textContent   = cEnv;
+
+  // Filter
+  const filtrados = todos.filter(l=>{
+    const s = rodStatusDados(l).key;
+    if(filVend   && l.vend !== filVend) return false;
+    if(filStatus && s !== filStatus)    return false;
+    if(filNome   && !l.nome.toLowerCase().includes(filNome)) return false;
+    if(filFone   && !l.fone.toLowerCase().includes(filFone)) return false;
+    return true;
+  });
+
+  const tbody = document.getElementById('rod-tbody');
+  if(!tbody) return;
+
+  if(filtrados.length===0){
+    tbody.innerHTML='<tr><td colspan="7" class="rod-empty">Nenhum lead encontrado.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtrados.map(l=>{
+    const st    = rodStatusDados(l);
+    const dias  = rodDias(l.dataEntrada);
+    const rowCls= l.enviado ? 'rod-row-enviado' : '';
+    const envBtn= l.enviado
+      ? `<button class="rod-btn-action" onclick="rodDesfazer(${l.id})" title="Desfazer envio">↩ Desfazer</button>`
+      : `<button class="rod-btn-action rod-btn-enviar" onclick="rodEnviar(${l.id})" title="Enviar para Rodízio">🔄 Rodízio</button>`;
+    const obs = l.obs ? `<br><span style="color:#666;font-size:11px">${l.obs}</span>` : '';
+    const dataEnvioInfo = l.enviado && l.dataEnvio
+      ? `<br><span style="color:#7faeff;font-size:10px">Enviado em ${rodFmtData(l.dataEnvio)}</span>`:'';
+    return `
+    <tr class="${rowCls}">
+      <td><strong style="color:#ffd86a">${escHtml(l.nome)}</strong>${obs}</td>
+      <td>${escHtml(l.fone)}</td>
+      <td>${escHtml(l.vend)}</td>
+      <td>${rodFmtData(l.dataEntrada)}${dataEnvioInfo}</td>
+      <td><span class="rod-dias-num" style="color:${dias<=4?'#5ddd5d':dias<=7?'#ffd86a':'#e05555'}">${dias}</span></td>
+      <td><span class="rod-status ${st.cls}">${st.label}</span></td>
+      <td>
+        ${envBtn}
+        <button class="rod-btn-action rod-btn-del" onclick="rodExcluir(${l.id})" title="Excluir">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function escHtml(t){
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Auto-refresh days every minute when rodizio is visible
+setInterval(()=>{
+  if(document.getElementById('panel-rodizio')?.classList.contains('active')){
+    rodRenderTabela();
+  }
+}, 60000);
+
+// Initial render for dashboard counts
+rodRenderTabela();
+</script>
+</body>
+</html>
