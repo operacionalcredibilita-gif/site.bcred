@@ -329,7 +329,7 @@ body{
     <button class="tab-btn" id="tab-outubro"  onclick="switchTab('outubro')">Outubro</button>
     <button class="tab-btn" id="tab-novembro" onclick="switchTab('novembro')">Novembro</button>
     <button class="tab-btn" id="tab-dezembro" onclick="switchTab('dezembro')">Dezembro</button>
-    <button class="tab-btn tab-rodizio" id="tab-rodizio" onclick="switchTab('rodizio')">📋 Rodízio de Leads</button>
+    <button class="tab-btn tab-rodizio" id="tab-rodizio" onclick="switchTab('rodizio')" style="display:none">📋 Rodízio de Leads</button>
   </div>
 
   <div class="iphone-campanha" id="campanhaIphone"></div>
@@ -953,6 +953,7 @@ function tentarLogin(){
     document.getElementById('user-badge-nome').textContent = user;
     badge.style.display = 'block';
     modoVisitante = false;
+    document.getElementById('tab-rodizio').style.display = 'inline-block'; // ✅ mostra aba
   } else {
     err.textContent = '❌ Usuário ou senha incorretos.';
     document.getElementById('login-pass').value = '';
@@ -964,6 +965,7 @@ function entrarVisitante(){
   document.getElementById('visitor-badge').style.display = 'block';
   modoVisitante = true;
   bloquearEdicao();
+  document.getElementById('tab-rodizio').style.display = 'none'; // 🚫 oculta aba
 }
 
 function bloquearEdicao(){
@@ -987,6 +989,11 @@ function logout(){
   document.getElementById('login-pass').value = '';
   document.getElementById('login-err').textContent = '';
   document.getElementById('login-overlay').style.display = 'flex';
+  document.getElementById('tab-rodizio').style.display = 'none'; // 🚫 oculta aba ao sair
+  // Se estava na aba rodízio, volta para junho
+  if(document.getElementById('panel-rodizio')?.classList.contains('active')){
+    switchTab('junho');
+  }
   modoVisitante = false;
 }
 
